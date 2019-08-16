@@ -1,8 +1,6 @@
-FROM python:3.7-alpine
+FROM python:3.7
 
 WORKDIR /usr/src/app
-
-RUN apk --no-cache add git
 
 COPY requirements.txt ./
 RUN pip install --no-cache-dir -r requirements.txt
