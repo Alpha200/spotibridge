@@ -126,6 +126,10 @@ dmypy.json
 .pyre/
 
 .idea
-.cache-*
+
+# TODO: Better use a volume
+#.cache-*
 
 mainold.py
+.gitignore
+.git
