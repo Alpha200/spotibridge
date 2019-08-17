@@ -1,8 +1,9 @@
 import math
+import os
+
 from colorsys import hsv_to_rgb, rgb_to_hsv
 from datetime import datetime, timedelta
 from io import BytesIO
-from random import random
 
 import requests
 from PIL import Image
@@ -12,11 +13,12 @@ from spotipy import util, Spotify
 
 from colorfinder import ColorFinder, color_filter_hue
 
-username = '***REMOVED***'
-client_id = '***REMOVED***'
-client_secret = '***REMOVED***'
-redirect_uri = 'http://localhost:17382/redirect'
-mqtt_host = "192.168.178.206"
+username = os.environ['SPOTIFY_USERNAME']
+client_id = os.environ['SPOTIFY_CLIENT_ID']
+client_secret = os.environ['SPOTIFY_CLIENT_SECRET']
+redirect_uri = os.environ['SPOTIFY_REDIRECT_URI']
+mqtt_host = os.environ['MQTT_HOST']
+mqtt_topic = os.environ['MQTT_TOPIC']
 
 
 def format_seconds(seconds):
@@ -77,7 +79,7 @@ class ColorScheduler:
 
             if job is not None:
                 job.remove()
-                self.mqttc.publish("homie/ledring/ring/color/set", "0,0,0", qos=1)
+                self.mqttc.publish(mqtt_topic, "0,0,0", qos=1)
 
                 print("No track playing")
 
@@ -138,7 +140,7 @@ class ColorScheduler:
         r, g, b = tuple(int(x * 255) for x in hsv_to_rgb(self.current_hue, math.sqrt(self.current_s), brightness))
 
         color = "{},{},{}".format(r, g, b)
-        self.mqttc.publish("homie/ledring/ring/color/set", color, qos=1)
+        self.mqttc.publish(mqtt_topic, color, qos=1)
 
 
 def main():

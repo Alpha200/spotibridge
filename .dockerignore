@@ -127,9 +127,8 @@ dmypy.json
 
 .idea
 
-# TODO: Better use a volume
-#.cache-*
+.cache-*
 
-mainold.py
+debug.py
 .gitignore
 .git

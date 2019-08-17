@@ -1,0 +1,15 @@
+version: '3.0'
+services:
+  spotilight:
+    build: .
+    container_name: spotilight
+    environment:
+      SPOTIFY_USERNAME: ''
+      SPOTIFY_CLIENT_ID: ''
+      SPOTIFY_CLIENT_SECRET: ''
+      SPOTIFY_REDIRECT_URI: ''
+      MQTT_HOST: ''
+      MQTT_TOPIC: ''
+    volumes:
+      - './.cache-username:/usr/src/app/.cache-username'
+    tty: true
