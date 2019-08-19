@@ -1,5 +1,5 @@
 def color_filter_hue(r, g, b):
-    return (abs(r - g) * abs(r - g) + abs(r - b) *abs(r - b) + abs(g - b) * abs(g - b)) / 65535 * 50 + 1
+    return (abs(r - g) * abs(r - g) + abs(r - b) * abs(r - b) + abs(g - b) * abs(g - b)) / 65535 * 50 + 1
 
 
 class ColorFinder:

@@ -91,7 +91,7 @@ class ColorScheduler:
             self.analysis = (sp.audio_analysis(track_id), track_id)
 
             cover_urls = current_track['item']['album']['images']
-            cover_url = cover_urls[len(cover_urls) - 1]['url']
+            cover_url = cover_urls[0]['url']
 
             response = requests.get(cover_url)
             response.raise_for_status()
