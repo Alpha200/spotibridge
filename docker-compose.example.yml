@@ -8,8 +8,8 @@ services:
       SPOTIFY_CLIENT_ID: ''
       SPOTIFY_CLIENT_SECRET: ''
       SPOTIFY_REDIRECT_URI: ''
-      MQTT_HOST: ''
-      MQTT_TOPIC: ''
+      OPENHAB_URL: 'http://192.168.178.1:8080'
+      OPENHAB_ITEM_NAME: 'Spoti_Color'
     volumes:
       - './.cache-username:/usr/src/app/.cache-username'
     tty: true
