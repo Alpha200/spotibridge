@@ -1,14 +1,13 @@
 import math
 import os
 
-from colorsys import hsv_to_rgb, rgb_to_hsv
+from colorsys import rgb_to_hsv
 from datetime import datetime, timedelta
 from io import BytesIO
 
 import requests
 from PIL import Image
 from apscheduler.schedulers.blocking import BlockingScheduler
-import paho.mqtt.client as mqtt
 from spotipy import util, Spotify
 
 from colorfinder import ColorFinder, color_filter_hue
@@ -17,8 +16,8 @@ username = os.environ['SPOTIFY_USERNAME']
 client_id = os.environ['SPOTIFY_CLIENT_ID']
 client_secret = os.environ['SPOTIFY_CLIENT_SECRET']
 redirect_uri = os.environ['SPOTIFY_REDIRECT_URI']
-mqtt_host = os.environ['MQTT_HOST']
-mqtt_topic = os.environ['MQTT_TOPIC']
+openhab_item = os.environ['OPENHAB_ITEM_NAME']
+openhab_url = os.environ['OPENHAB_URL']
 
 
 def format_seconds(seconds):
@@ -33,12 +32,8 @@ class ColorScheduler:
         self.scheduler = BlockingScheduler()
         self.color_finder = ColorFinder(color_filter_hue)
         self.analysis = None
-        self.mqttc = mqtt.Client()
         self.current_hue = 0
         self.current_s = 0
-
-        self.mqttc.connect(mqtt_host)
-        self.mqttc.loop_start()
 
         def update_job_caller():
             self.update_job()
@@ -79,8 +74,7 @@ class ColorScheduler:
 
             if job is not None:
                 job.remove()
-                self.mqttc.publish(mqtt_topic, "0,0,0", qos=1)
-
+                self.set_color((0, 0, 0))
                 print("No track playing")
 
             return
@@ -130,6 +124,13 @@ class ColorScheduler:
             replace_existing=True
         )
 
+    @staticmethod
+    def set_color(color):
+        h, s, v = color
+        url = openhab_url + "/rest/items/{}".format(openhab_item)
+        body = "{},{},{}".format(int(h), int(s), int(v))
+        requests.post(url, body)
+
     def update_color(self, section):
         if section is not None:
             brightness = max(0.1, min(1.0, (15.0 - (section['loudness'] * -1 - 5.0)) / 15))
@@ -137,10 +138,7 @@ class ColorScheduler:
             brightness = 0.1
 
         print("New brightness: {}".format(brightness))
-        r, g, b = tuple(int(x * 255) for x in hsv_to_rgb(self.current_hue, math.sqrt(self.current_s), brightness))
-
-        color = "{},{},{}".format(r, g, b)
-        self.mqttc.publish(mqtt_topic, color, qos=1)
+        self.set_color((self.current_hue * 360, math.sqrt(self.current_s) * 100, brightness * 100))
 
 
 def main():
