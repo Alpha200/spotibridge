@@ -34,6 +34,7 @@ class ColorScheduler:
         self.analysis = None
         self.current_hue = 0
         self.current_s = 0
+        self.last_color = None
 
         def update_job_caller():
             self.update_job()
@@ -76,6 +77,8 @@ class ColorScheduler:
                 job.remove()
                 self.set_color((0, 0, 0))
                 print("No track playing")
+            elif self.last_color != (0, 0, 0):
+                self.set_color((0, 0, 0))
 
             return
 
@@ -124,8 +127,8 @@ class ColorScheduler:
             replace_existing=True
         )
 
-    @staticmethod
-    def set_color(color):
+    def set_color(self, color):
+        self.last_color = color
         h, s, v = color
         url = openhab_url + "/rest/items/{}".format(openhab_item)
         body = "{},{},{}".format(int(h), int(s), int(v))
