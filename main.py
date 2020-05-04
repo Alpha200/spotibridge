@@ -109,7 +109,7 @@ class ColorScheduler:
 
         sections = self.analysis[0]['sections']
 
-        next_section = next((section for section in sections if progress_in_seconds < section['start']), None)
+        next_section = next((section for section in sections[1:] if progress_in_seconds < section['start']), None)
 
         if next_section is not None:
             next_change = start_of_track + timedelta(seconds=next_section['start'])
