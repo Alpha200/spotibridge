@@ -70,7 +70,7 @@ class ColorScheduler:
         difference = (now - before) / 2
         now = before + difference
 
-        if current_track is None or not current_track['is_playing']:
+        if current_track is None or not current_track['is_playing'] or current_track['item'] is None:
             job = self.scheduler.get_job('color_updater')
 
             if job is not None:
