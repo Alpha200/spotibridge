@@ -9,4 +9,4 @@ COPY . .
 
 USER 1000:1000
 
-CMD [ "python", "main.py" ]
+CMD [ "python", "-u", "main.py" ]
