@@ -1,15 +1,15 @@
-version: '3.0'
+version: '2.0'
 services:
-  spotilight:
-    build: .
-    container_name: spotilight
+  spotibridge:
+    image: alpha200/spotibridge
+    container_name: spotibridge
     environment:
       SPOTIFY_USERNAME: ''
       SPOTIFY_CLIENT_ID: ''
       SPOTIFY_CLIENT_SECRET: ''
       SPOTIFY_REDIRECT_URI: ''
-      OPENHAB_URL: 'http://192.168.178.1:8080'
-      OPENHAB_ITEM_NAME: 'Spoti_Color'
+      MQTT_HOST: "192.168.1.1"
+      MQTT_USER: ""
+      MQTT_PASSWORD: ""
     volumes:
       - './.cache-username:/usr/src/app/.cache-username'
-    tty: true

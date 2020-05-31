@@ -1,5 +1,13 @@
+from math import sqrt
+
+
 def color_filter_hue(r, g, b):
     return (abs(r - g) * abs(r - g) + abs(r - b) * abs(r - b) + abs(g - b) * abs(g - b)) / 65535 * 50 + 1
+
+
+def color_filter_hue_brightness(r, g, b):
+    v = max(r / 255, g / 255, b / 255)
+    return (((abs(r - g) * abs(r - g) + abs(r - b) * abs(r - b) + abs(g - b) * abs(g - b)) / 65535 * 50) + 1) * sqrt(v)
 
 
 class ColorFinder:

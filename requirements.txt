@@ -1,4 +1,6 @@
 apscheduler
 git+https://github.com/plamere/spotipy.git
 Pillow
-requests
+packaging
+paho-mqtt
+click

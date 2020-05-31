@@ -128,6 +128,4 @@ dmypy.json
 .idea
 .cache-*
 
-debug.py
-
 docker-compose.yml
