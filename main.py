@@ -35,11 +35,7 @@ class ColorScheduler:
         self.init_homie_device()
 
         self.scheduler.add_job(
-            self.update_job,
-            'interval',
-            (),
-            id='job_updater',
-            seconds=5
+            self.update_job, "interval", (), id="job_updater", seconds=5
         )
 
     def on_connect(self, client, userdata, flags, rc, properties=None):
@@ -77,7 +73,9 @@ class ColorScheduler:
         current_track_property.datatype = HomieDataType.STRING
         current_track_property.value = ""
 
-        dominant_album_color_property = HomieProperty("dominant-album-color", node, True)
+        dominant_album_color_property = HomieProperty(
+            "dominant-album-color", node, True
+        )
         dominant_album_color_property.name = "Dominant album color"
         dominant_album_color_property.datatype = HomieDataType.COLOR
         dominant_album_color_property.format = "rgb"
@@ -94,18 +92,22 @@ class ColorScheduler:
 
         token = util.prompt_for_user_token(
             Config.SPOTIFY_USERNAME,
-            'user-read-playback-state',
+            "user-read-playback-state",
             client_id=Config.SPOTIFY_CLIENT_ID,
             client_secret=Config.SPOTIFY_CLIENT_SECRET,
-            redirect_uri=Config.SPOTIFY_REDIRECT_URI
+            redirect_uri=Config.SPOTIFY_REDIRECT_URI,
         )
 
         sp = Spotify(auth=token)
 
         current_track = sp.current_user_playing_track()
 
-        if current_track is None or not current_track['is_playing'] or current_track['item'] is None:
-            job = self.scheduler.get_job('color_updater')
+        if (
+            current_track is None
+            or not current_track["is_playing"]
+            or current_track["item"] is None
+        ):
+            job = self.scheduler.get_job("color_updater")
 
             if job is not None:
                 job.remove()
@@ -117,7 +119,7 @@ class ColorScheduler:
 
             return
 
-        track_id = current_track['item']['id']
+        track_id = current_track["item"]["id"]
 
         if self.current_track is None:
             self.set_is_playing(True)
@@ -125,35 +127,39 @@ class ColorScheduler:
         if self.current_track != track_id:
             self.current_track = track_id
 
-            cover_urls = current_track['item']['album']['images']
-            cover_url = cover_urls[0]['url']
+            cover_urls = current_track["item"]["album"]["images"]
+            cover_url = cover_urls[0]["url"]
 
             response = requests.get(cover_url)
             response.raise_for_status()
             image = Image.open(BytesIO(response.content))
 
             self.set_color(self.color_finder.get_most_prominent_color(image))
-            self.set_current_track_title(current_track['item']['name'])
+            self.set_current_track_title(current_track["item"]["name"])
 
         # One cannot use this as this is not correct
         # now = datetime.fromtimestamp(current_track['timestamp'] / 1000)
 
         now = datetime.now()
 
-        start_of_track = now - timedelta(milliseconds=current_track['progress_ms'])
-        next_change = start_of_track + timedelta(milliseconds=current_track['item']['duration_ms'])
+        start_of_track = now - timedelta(milliseconds=current_track["progress_ms"])
+        next_change = start_of_track + timedelta(
+            milliseconds=current_track["item"]["duration_ms"]
+        )
 
         self.scheduler.add_job(
             update_color_caller,
-            'date',
+            "date",
             (),
             id="color_updater",
             run_date=next_change,
-            replace_existing=True
+            replace_existing=True,
         )
 
     def set_color(self, color: Tuple[int, int, int]) -> None:
-        color_property = self.homie_device.nodes["player"].properties["dominant-album-color"]
+        color_property = self.homie_device.nodes["player"].properties[
+            "dominant-album-color"
+        ]
 
         if color_property.value != color:
             color_property.value = color
@@ -179,5 +185,5 @@ def main():
     color_scheduler.start()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
