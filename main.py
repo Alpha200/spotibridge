@@ -1,10 +1,12 @@
+import json
 from datetime import datetime, timedelta
 from io import BytesIO
-from typing import Tuple
+from typing import Tuple, List
 
 import requests
 from PIL import Image
 from apscheduler.schedulers.blocking import BlockingScheduler
+from colorthief import ColorThief
 from packaging.version import Version
 from spotipy import util, Spotify
 
@@ -81,14 +83,35 @@ class ColorScheduler:
         dominant_album_color_property.format = "rgb"
         dominant_album_color_property.value = (0, 0, 0)
 
+        album_cover_palette_property = HomieProperty("album-cover-palette", node, True)
+        album_cover_palette_property.name = "Album cover color palette"
+        album_cover_palette_property.datatype = HomieDataType.STRING
+        album_cover_palette_property.value = "[]"
+
         self.homie_device = homie_device
 
     def start(self):
         self.scheduler.start()
 
+    def get_color_palette(self, image: Image) -> List[Tuple[int, int, int]]:
+        color_thief = ColorThief(image)
+        palette = color_thief.get_palette(5, 1)
+        return palette
+
+    def set_color_palette(self, palette: List[Tuple[int, int, int]]):
+        color_palette_property = self.homie_device.nodes["player"].properties[
+            "album-cover-palette"
+        ]
+        current_value = color_palette_property.value
+        color_palette_property.value = json.dumps(palette)
+
+        if current_value != color_palette_property.value:
+            color_palette_property.publish_value()
+
     def update_job(self):
         def update_color_caller():
             self.set_color((0, 0, 0))
+            self.set_color_palette([])
 
         token = util.prompt_for_user_token(
             Config.SPOTIFY_USERNAME,
@@ -114,6 +137,7 @@ class ColorScheduler:
 
             if job is not None or self.current_track is not None:
                 self.set_color((0, 0, 0))
+                self.set_color_palette([])
                 self.set_is_playing(False)
                 self.set_current_track_title("")
 
@@ -135,6 +159,7 @@ class ColorScheduler:
             image = Image.open(BytesIO(response.content))
 
             self.set_color(self.color_finder.get_most_prominent_color(image))
+            self.set_color_palette(self.get_color_palette(image))
             self.set_current_track_title(current_track["item"]["name"])
 
         # One cannot use this as this is not correct
